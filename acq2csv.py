@@ -25,7 +25,7 @@ custom_headers = [
 ]
 
 # Path to all .acq files (files should not be within sub-folders
-acq_path = "/home/burleigh/Desktop/FCTM_S_Data/Participant_Biopac_Data"
+acq_path = "/home/burleigh/Documents/FCTM_Bx_Data/PartBio2"
 #acq_path = "C:/Users/zacha/Documents/LSU/Greening Lab/Subject Data/Participant_Biopac_Data"
 
 # Include time stamps?
@@ -79,6 +79,14 @@ def data_or_blank(channel, index, missing_val):
     return missing_val
 
 
+def search(array, term):
+    results = []
+    for element in array:
+	if term in element:
+	    results.append(element)
+    return results
+
+
 # Store .csv files in a CSV sub folder to be found later
 for f in os.listdir(acq_path):
     if os.path.isfile(acq_path + '/' + f):  # ensuring we only work on files
@@ -111,14 +119,25 @@ for root, dirs, files in os.walk(csv_path):
         filenames.append(name)  # now have array of file names
         participants.append(re.search(regex, name).group(0))  # now have array of participant numbers
 
-for root, dirs, files in os.walk(path):
-    for names in dirs:
-        for i in participants:
-            if i in names:  # if there is a folder for our participant number
-                if not os.path.isdir(path + "/" + names + "/scr"):  # if the scr isn't there
-                    os.makedirs(path + "/" + names + "/scr")
-                move(csv_path + "/" + filenames[i], path + "/" + names + "/scr")  # if it is, move files
-            else:  # if the participant folder doesn't exist
-                os.makedirs(path + "/" + names)
-                os.makedirs(path + "/" + names + "/scr")
-                move(csv_path + "/" + filenames[i], path + "/" + names + "/scr")
+os.chdir(path)
+for num in participants:
+    assoc_files = search(filenames, num)  # an array to put filenames containing the participant number
+    if os.path.isdir(path + '/' + num):  # participant folder exists already
+	if not os.path.isdir(path + '/' + num + '/scr'):
+	    os.makedirs(path + '/' + num + "/scr")  # ensure scr folder is there too
+	for name in assoc_files:
+            try:
+		move(csv_path + '/' + name, path + '/' + num + "/scr")  # move files
+	    except:
+		pass
+    else:
+    #elif not os.path.isdir(path + '/' + num):  # if participant folder doesn't already exist
+	os.makedirs(path + '/' + num)  # make it
+	os.makedirs(path + '/' + num + "/scr")   # and its sub folder
+	for name in assoc_files:
+	    try:
+		move(csv_path + '/' + name, path + '/' + num + "/scr")  # move files
+	    except:
+		pass
+	os.rmdir(csv_path)
+
