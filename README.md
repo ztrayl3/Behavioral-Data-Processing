@@ -1,6 +1,5 @@
-# Behavioral_Data_Organization
+# Behavioral Data Processing Tools
 Scripts to organize acknowledge and Matlab log files
-
 
 ### These scripts are provided as-is and nothing is guaranteed. A basic knowledge of python is assumed for editing the files
 
